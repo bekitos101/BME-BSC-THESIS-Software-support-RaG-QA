@@ -1,0 +1,54 @@
+# === Python ===
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.ipynb_checkpoints/
+.Python
+env/
+venv/
+ENV/
+*.env
+*.venv
+pip-wheel-metadata/
+dist/
+build/
+.eggs/
+*.egg-info/
+.mypy_cache/
+.pytest_cache/
+coverage.*
+.tox/
+.dmypy.json
+.pyre/
+.pytype/
+
+# === VS Code ===
+.vscode/
+
+# === Jupyter Notebooks ===
+.ipynb_checkpoints/
+
+# === PDF, evaluation, embeddings ===
+*.pdf
+evaluation*.json
+*.db
+*.log
+*.ckpt
+*.pth
+*.pt
+*.onnx
+*.npy
+*.json
+*.txt
+*.pdf
+*.xml
+
+# === Ollama and Qdrant ===
+qdrant_storage/
+ollama_models/
+__ollama_cache__/
+
+# === OS files ===
+.DS_Store
+Thumbs.db
