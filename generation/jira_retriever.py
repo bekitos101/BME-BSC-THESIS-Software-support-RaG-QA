@@ -16,7 +16,6 @@ from Indexing.Jira_indexing.indexing.utils import get_dense_embedding, generate_
 from query_expander import QueryExpander
 from typing import Optional, List, Dict
 from jira_reranker import CrossEncoderReranker
-# === Logger setup ===
 logging.basicConfig(
     filename="jira_retriever.log",
     filemode="a",
@@ -40,17 +39,17 @@ class JiraHybridRetriever:
         self.reranker = CrossEncoderReranker(top_k=5)
 
     def retrieve(self, question: str, top_k: int = 5, filters: Optional[models.Filter] = None):
-        logger.info(f"📩 Query received: {question}")
-
+        logger.info(f" Query received: {question}")
         # Generate dense and sparse vectors
         dense_vector = self.query_expander.expand_query_hyde(question)
+        logger.info(f"Query expanded via Hyde") 
         sparse_vector = generate_sparse_vector(question)
 
         #Prepare prefetch for dense and sparse
         prefetch = [
             Prefetch(
                 query=dense_vector,
-                using="dense",  # must match vector name in collection
+                using="dense",  
                 limit=top_k * 3
             ),
             Prefetch(
@@ -70,9 +69,9 @@ class JiraHybridRetriever:
             query_filter=filters
         )
 
-        logger.info(f"📦 Qdrant returned {len(results.points)} results")
+        logger.info(f"Qdrant returned {len(results.points)} results")
         if not results.points:
-            logger.warning("❌ No results from Qdrant hybrid search")
+            logger.warning("No results from Qdrant hybrid search")
             return "No results found.", [], []
 
         #prepare docs for reranking 
@@ -119,11 +118,11 @@ class JiraHybridRetriever:
             citations.append(citation)
             texts.append(chunk_text)
 
-            logger.info(f"✅ Ticket {key} | Reranked")
-            logger.info(f"✅ Ticket {key} | Reranked Score: {rerank_score}")
+            logger.info(f" Ticket {key} | Reranked")
+            logger.info(f" Ticket {key} | Reranked Score: {rerank_score}")
 
 
-        logger.info(f"🎯 Final top {len(texts)} chunks selected")
+        logger.info(f" Final top {len(texts)} chunks selected")
 
         context = "\n\n".join(f"[{cit}]\n{text}" for cit, text in zip(citations, texts))
         return context, citations, texts

@@ -18,7 +18,7 @@ def query_ollama(prompt, model="deepseek-r1:1.5b", stream=False):
         "prompt": prompt,
         "stream": stream
     }
-
+    response=None
     try:
         response = requests.post(url, json=payload)
         response.raise_for_status()
@@ -28,3 +28,4 @@ def query_ollama(prompt, model="deepseek-r1:1.5b", stream=False):
         if response is not None:
             print(response.text)
         return None
+

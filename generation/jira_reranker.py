@@ -16,7 +16,7 @@ class CrossEncoderReranker:
         self.model = AutoModelForSequenceClassification.from_pretrained(model_name)
 
     def rerank(self, query: str, docs: List[Dict]) -> List[Dict]:
-        logger.info(f"🔁 Reranking top {len(docs)} results using {self.model_name}")
+        logger.info(f" Reranking top {len(docs)} results using {self.model_name}")
         inputs = self.tokenizer(
             [query] * len(docs),
             [doc["text"] for doc in docs],
@@ -28,7 +28,7 @@ class CrossEncoderReranker:
         with torch.no_grad():
             scores = self.model(**inputs).logits.squeeze().tolist()
 
-        if isinstance(scores, float):  # Handle batch size 1
+        if isinstance(scores, float): 
             scores = [scores]
 
         # Add scores and sort
@@ -36,6 +36,6 @@ class CrossEncoderReranker:
             doc["rerank_score"] = scores[i]
 
         sorted_docs = sorted(docs, key=lambda d: d["rerank_score"], reverse=True)
-        logger.info("✅ Reranking complete")
+        logger.info("Reranking complete")
 
         return sorted_docs[:self.top_k]
