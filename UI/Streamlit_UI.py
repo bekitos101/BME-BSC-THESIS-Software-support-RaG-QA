@@ -3,6 +3,9 @@ import sys
 import os
 import json
 import re
+import base64
+
+from PIL import Image
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -15,13 +18,30 @@ if generation_path not in sys.path:
 multi_path = os.path.abspath(os.path.join(current_dir, "..", "multi_source_retriever"))
 if multi_path not in sys.path:
     sys.path.insert(0, multi_path)
+    
+#Add logo path
+logo_path = os.path.join(current_dir, "static", "logo.png")
+logo = Image.open(logo_path)
+    
 
 from chat_assistant import ChatAssistant
 
 # UI CONFIG 
 st.set_page_config(page_title="CAP Assistant", layout="wide")
-st.title("📘 CAP Question Answering")
-st.markdown("Ask a question and choose a source. The assistant will retrieve context and generate an answer with references.")
+
+# Load image and convert to base64
+logo_path = os.path.join(current_dir, "static", "logo.webp")
+with open(logo_path, "rb") as f:
+    logo_data = f.read()
+logo_base64 = base64.b64encode(logo_data).decode()
+
+st.markdown(f"""
+<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0;">
+    <img src="data:image/webp;base64,{logo_base64}" width="45" style="margin-top: 2px;">
+    <h1 style="margin: 0; padding: 0;">  CAP Assistant</h1>
+</div>
+<p style="margin-top: 0.25rem;">Ask a question and choose a source. The assistant will retrieve context and generate an answer with references.</p>
+""", unsafe_allow_html=True)
 
 # SESSION STATE 
 if "response" not in st.session_state:
@@ -31,8 +51,8 @@ if "response" not in st.session_state:
 with st.form("qa_form"):
     question = st.text_area("Your question:")
     source = st.radio("Select source:", ["User Manual", "Support Tickets", "Multi Source"], horizontal=True)
-    model_choice = st.selectbox("Choose LLM model:", ["Local (Ollama)", "Cloud (OpenAI GPT)"])
-    model_name = ChatAssistant.LOCAL_MODEL if model_choice.startswith("Local") else ChatAssistant.CLOUD_MODEL
+    model_choice = st.selectbox("Choose LLM model:", ["Ollama deepSeek 1.5B", "GPT 3.5 Turbo"])
+    model_name = ChatAssistant.LOCAL_MODEL if model_choice.startswith("Ollama") else ChatAssistant.CLOUD_MODEL
     submit = st.form_submit_button("Ask")
 
 # PROCESS QUESTION 
@@ -102,7 +122,10 @@ if st.session_state.response:
 
         with st.container():
             with st.expander(display_title, expanded=False):
-                st.markdown(formatted_chunk)
+                st.markdown(
+                    f"<div style='word-wrap: break-word; overflow-wrap: break-word; font-size: 0.92rem;'>{formatted_chunk}</div>",
+                    unsafe_allow_html=True
+                )
 
 st.markdown("---")
 st.markdown("<div style='text-align: center;'>Built with 💙 for BME Bsc Thesis Project</div>", unsafe_allow_html=True)
